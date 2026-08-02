@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Современные технологии программирования</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="Курс по современным технологиям программирования">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+    <!-- Тема оформления Docsify (можно заменить на vue.css, dark.css и т.д.) -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        window.$docsify = {
+            name: 'Современные технологии программирования',
+            repo: '', // сюда позже можно вставить ссылку на ваш GitHub-репозиторий
+            loadSidebar: true,
+            loadNavbar: false,
+            subMaxLevel: 2,
+            auto2top: true,
+            search: {
+                paths: 'auto',
+                placeholder: 'Поиск по курсу...',
+                noData: 'Ничего не найдено',
+                depth: 3
+            },
+            pagination: {
+                previousText: 'Назад',
+                nextText: 'Далее',
+                crossChapter: true,
+                crossChapterText: true
+            }
+        }
+    </script>
+
+    <!-- Docsify core -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+
+    <!-- Плагины: поиск и постраничная навигация -->
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+
+    <!-- Подсветка синтаксиса Java -->
+    <script src="//cdn.jsdelivr.net/npm/prismjs/components/prism-java.min.js"></script>
+</body>
+</html>
