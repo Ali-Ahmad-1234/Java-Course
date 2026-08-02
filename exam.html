@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Итоговый тест — Современные технологии программирования</title>
+<style>
+  :root {
+    --ink: #1c1f26;
+    --paper: #faf8f3;
+    --paper-2: #f1ede3;
+    --rule: #d8d2c2;
+    --accent: #2f5233;
+    --accent-2: #8a6d3b;
+    --danger: #a3372f;
+    --ok: #2f6b3f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    line-height: 1.5;
+  }
+  header.exam-head {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    border-bottom: 2px solid var(--ink);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header.exam-head h1 {
+    font-size: 1.05rem;
+    margin: 0;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+  }
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+  }
+  #timer {
+    font-size: 1.15rem;
+    font-weight: bold;
+    padding: 4px 12px;
+    border: 1px solid var(--ink);
+    background: var(--paper-2);
+    min-width: 84px;
+    text-align: center;
+  }
+  #timer.warn { color: var(--danger); border-color: var(--danger); }
+  .progress-track {
+    height: 4px;
+    background: var(--rule);
+    position: sticky;
+    top: 58px;
+    z-index: 19;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.2s ease;
+  }
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 20px 100px;
+  }
+  #intro {
+    text-align: center;
+    padding: 60px 10px;
+  }
+  #intro h2 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+  #intro p {
+    color: #555;
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
+  .start-btn, .submit-btn, .restart-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 14px 34px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .start-btn:hover, .submit-btn:hover, .restart-btn:hover {
+    background: var(--accent);
+  }
+  .q-block {
+    border-bottom: 1px solid var(--rule);
+    padding: 26px 0;
+  }
+  .q-num {
+    font-family: 'Courier New', monospace;
+    color: var(--accent-2);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-size: 1.08rem;
+    margin: 0 0 14px;
+  }
+  .options label {
+    display: block;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    background: #fff;
+    transition: border-color .15s, background .15s;
+  }
+  .options label:hover { border-color: var(--accent-2); }
+  .options input { margin-right: 10px; }
+  .options label.selected {
+    border-color: var(--accent);
+    background: #eef3ec;
+  }
+  .q-block.correct .options label.correct-answer {
+    border-color: var(--ok);
+    background: #e9f5ea;
+  }
+  .q-block.incorrect .options label.correct-answer {
+    border-color: var(--ok);
+    background: #e9f5ea;
+  }
+  .q-block.incorrect .options label.wrong-selected {
+    border-color: var(--danger);
+    background: #fbeceb;
+  }
+  .footer-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: center;
+    z-index: 20;
+  }
+  #results {
+    text-align: center;
+    padding: 40px 10px 20px;
+  }
+  #results .score {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  #results .score-label {
+    color: #666;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hidden { display: none !important; }
+  .unanswered-note {
+    text-align: center;
+    color: var(--danger);
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header class="exam-head">
+  <h1>Итоговый тест · Современные технологии программирования</h1>
+  <div class="meta-row">
+    <span id="progress-text">0 / 60</span>
+    <span id="timer">40:00</span>
+  </div>
+</header>
+<div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+<main>
+  <section id="intro">
+    <h2>Итоговый тест по курсу</h2>
+    <p>60 вопросов по всем шести лекциям курса. На выполнение отводится 40 минут — таймер запустится сразу после нажатия кнопки ниже. Тест можно сдать раньше, нажав «Завершить тест» внизу страницы.</p>
+    <button class="start-btn" id="start-btn">Начать тест</button>
+  </section>
+
+  <form id="quiz-form" class="hidden"></form>
+
+  <section id="results" class="hidden"></section>
+</main>
+
+<div class="footer-bar hidden" id="footer-bar">
+  <button class="submit-btn" id="submit-btn">Завершить тест</button>
+</div>
+
+<script>
+const QUESTIONS = [
+{q:"Что означает девиз Java?", o:["Compile once — debug everywhere","Code once — deploy anywhere","Write once — run anywhere","Build once — test anywhere"], a:2},
+{q:"Во что компилятор javac превращает исходный код Java?", o:["В машинный код (.exe)","В байт-код (.class)","В ассемблерный код (.asm)","В JavaScript (.js)"], a:1},
+{q:"Какое соотношение между JDK, JRE и JVM верно?", o:["JVM содержит JRE, JRE содержит JDK","JRE содержит JDK, JDK содержит JVM","JDK и JRE — это одно и то же","JDK содержит JRE, JRE содержит JVM"], a:3},
+{q:"Какой загрузчик классов загружает класс String?", o:["Bootstrap ClassLoader","Platform ClassLoader","Application ClassLoader","Custom ClassLoader"], a:0},
+{q:"Что вернёт String.class.getClassLoader()?", o:["PlatformClassLoader","AppClassLoader","null","BootstrapClassLoader"], a:2},
+{q:"Что выведет System.out.println(11 / 4)?", o:["2.75","2","2.0","3"], a:1},
+{q:"Что произойдёт при выполнении: byte b = 127; b++;?", o:["Ошибка компиляции","b станет 128","Будет выброшено исключение","b станет -128 (переполнение)"], a:3},
+{q:"Почему 0.1 + 0.2 == 0.3 возвращает false?", o:["Оператор == не работает с типом double","Нужно использовать float вместо double","Из-за погрешности формата IEEE 754","Java округляет дробные числа при сложении"], a:2},
+{q:"Каков размер типа int в Java?", o:["32 бита","16 бит","64 бита","Зависит от платформы"], a:0},
+{q:"int x = 7; System.out.println(x++); Что выведет?", o:["8","7","6","Ошибка компиляции"], a:1},
+
+{q:"Что такое класс в Java?", o:["Готовый объект в памяти","Шаблон (чертёж), по которому создаются объекты","Набор статических методов","Файл с расширением .class"], a:1},
+{q:"Сколько классов может наследовать Java-класс через extends?", o:["Неограниченное количество","Два","Ноль — наследование запрещено","Только один"], a:3},
+{q:"Когда выполняется статический блок инициализации?", o:["Один раз при загрузке класса в память","При каждом создании объекта","При вызове конструктора","При вызове любого метода класса"], a:0},
+{q:"Чем отличается поле экземпляра от статического поля?", o:["Поле экземпляра доступно только в конструкторе","Статическое поле существует только во время вызова метода","Поле экземпляра принадлежит каждому объекту отдельно, статическое — общее для всех","Статическое поле может быть только типа int"], a:2},
+{q:"Какой модификатор доступа делает поле видимым только внутри своего класса?", o:["protected","private","default (без модификатора)","public"], a:1},
+{q:"Что означает модификатор доступа по умолчанию (без ключевого слова)?", o:["Доступ только внутри того же пакета (package-private)","Доступ отовсюду (как public)","Доступ только внутри класса (как private)","Доступ только для подклассов"], a:0},
+{q:"Когда выполняется блок инициализации экземпляра (instance block)?", o:["Один раз при загрузке класса","Только при первом создании объекта","Только при вызове метода","При каждом создании нового объекта класса"], a:3},
+{q:'Что объявляет конструкция public static final String NAME = "Test";?', o:["Изменяемое статическое поле","Локальную переменную","Константу класса","Метод, возвращающий строку"], a:2},
+{q:"Что делает директива exports в module-info.java?", o:["Импортирует пакет из другого модуля","Делает пакет доступным для других модулей","Открывает пакет для рефлексии","Удаляет пакет из модуля"], a:1},
+{q:"Что делает директива requires в module-info.java?", o:["Указывает зависимость от другого модуля","Экспортирует пакет","Открывает пакет для рефлексии","Объявляет сервис"], a:0},
+{q:"Что делает директива opens в module-info.java?", o:["Экспортирует пакет для компиляции","Указывает зависимость от другого модуля","Делает модуль публичным","Открывает пакет для рефлексии во время выполнения"], a:3},
+{q:"Какую проблему JPMS решает в отношении classpath?", o:["Ускоряет компиляцию","Удаляет неиспользуемые классы","JAR-Hell — конфликты библиотек с одноимёнными классами","Автоматически загружает зависимости из интернета"], a:2},
+{q:"Для чего используется файл package-info.java?", o:["Для объявления модуля","Для документирования и аннотирования пакета","Для указания зависимостей пакета","Для настройки компилятора"], a:1},
+{q:'Какой результат вызова String.join("-", "A", "B", "C")?', o:['"A-B-C"','"-A-B-C-"','"ABC-"','"A B C"'], a:0},
+{q:"Что такое protected модификатор доступа?", o:["Доступ только внутри класса","Доступ только внутри пакета","Доступ отовсюду","Доступ внутри пакета и в подклассах из других пакетов"], a:3},
+
+{q:"int x = 12; if (x > 5) print(\"A\"); print(\"B\"); Что выведет (без фигурных скобок у if)?", o:['"A"','"B"','"AB"',"Ошибка компиляции"], a:2},
+{q:'int x = 2; String r = (x > 3) ? "больше" : "меньше"; Что выведет System.out.println(r)?', o:["меньше","больше","Ошибка компиляции","2"], a:0},
+{q:"Какое главное преимущество стрелочного switch (Java 14+) перед классическим?", o:["Отсутствие fall-through — не нужен break","Он работает быстрее","Он поддерживает больше типов данных","Он может использоваться только как выражение"], a:0},
+{q:'int x=3; switch(x){case1->"один";case2->"два";case3->"три";default->"другое";} Что выведет?', o:["один","другое","три","Ошибка компиляции"], a:2},
+{q:"Для чего используется ключевое слово yield в switch-выражении?", o:["Для прерывания выполнения switch","Для возврата значения из блока кода в switch-выражении","Для перехода к следующему case","Для создания генератора"], a:1},
+{q:"Что такое pattern matching в switch (Java 17+)?", o:["Использование регулярных выражений в case","Автоматическое сравнение строк по шаблону","Возможность проверять тип объекта и сразу приводить его к нужному типу в case","Сравнение объектов с помощью equals()"], a:2},
+{q:"Для чего используется оператор when в switch с pattern matching (Java 21+)?", o:["Для замены default","Для указания таймаута выполнения","Для группировки нескольких case","Для добавления дополнительного условия к паттерну"], a:3},
+{q:"int i = 6; while (i > 0) { i -= 3; } System.out.println(i); Что выведет?", o:["0","-1","3","Бесконечный цикл"], a:0},
+{q:"Чем цикл do-while отличается от while?", o:["do-while выполняется быстрее","do-while не поддерживает break","do-while проверяет условие перед телом цикла","do-while гарантирует выполнение тела хотя бы один раз"], a:3},
+{q:"int sum=0; for(i=1;i<=6;i++){if(i%2==0)continue; sum+=i;} Что выведет sum?", o:["21","9","12","6"], a:1},
+
+{q:"Как правильно создать экземпляр нестатического внутреннего класса Inner внутри Outer?", o:["Inner i = new Inner();","Outer.Inner i = new Outer.Inner();","Inner i = Outer.new Inner();","Outer o = new Outer(); Outer.Inner i = o.new Inner();"], a:3},
+{q:"Какое ограничение имеет нестатический внутренний класс (inner class)?", o:["Не может существовать без экземпляра внешнего класса","Не имеет доступа к private полям внешнего класса","Может существовать без экземпляра внешнего класса","Не может реализовывать интерфейсы"], a:0},
+{q:"Как правильно создать экземпляр статического вложенного класса StaticNested внутри Outer?", o:["Outer o=new Outer(); Outer.StaticNested sn=o.new StaticNested();","StaticNested sn=new StaticNested();","Outer.StaticNested sn=new Outer.StaticNested();","Outer.StaticNested sn=Outer.new StaticNested();"], a:2},
+{q:"К каким членам внешнего класса имеет доступ статический вложенный класс?", o:["Ко всем членам, включая private нестатические","Только к статическим членам внешнего класса","Только к public членам внешнего класса","Ни к каким — он полностью изолирован"], a:1},
+{q:"Почему паттерн Builder часто реализуется как статический вложенный класс?", o:["Потому что Builder не нуждается в экземпляре внешнего класса — он сам создаёт этот экземпляр","Потому что только статический класс может иметь конструктор","Потому что статический класс автоматически реализует Serializable","Потому что нестатический класс не может возвращать объекты"], a:0},
+{q:"Какой из четырёх типов вложенных классов НЕ привязан к экземпляру внешнего класса?", o:["Статический вложенный класс (static nested class)","Нестатический внутренний класс (inner class)","Локальный класс (local class)","Анонимный класс (anonymous class)"], a:0},
+{q:"Какой модификатор доступа может иметь интерфейс, объявленный внутри класса?", o:["Только public","Любой: public, protected, package-private или private","Только public или private","Только public или protected"], a:1},
+{q:"Какие неявные модификаторы получает интерфейс, объявленный внутри другого интерфейса?", o:["private abstract","protected abstract","public static","public abstract"], a:2},
+
+{q:"Какой интерфейс является корнем иерархии коллекций в Java (JCF)?", o:["Collection","List","Iterable","Map"], a:2},
+{q:"Какое утверждение верно об интерфейсе Map в иерархии JCF?", o:["Map наследует интерфейс Collection","Map наследует интерфейс Iterable","Map является подтипом интерфейса Set","Map НЕ наследует Collection — это отдельная ветвь иерархии"], a:3},
+{q:"Какая реализация Set сохраняет порядок вставки элементов?", o:["HashSet","LinkedHashSet","TreeSet","EnumSet"], a:1},
+{q:"Какая реализация Map хранит записи отсортированными по ключам?", o:["HashMap","LinkedHashMap","Hashtable","TreeMap"], a:3},
+{q:"Какой интерфейс нужно реализовать для сортировки объектов «по умолчанию» с помощью Collections.sort()?", o:["Comparator","Sortable","Comparable (метод compareTo())","Iterable"], a:2},
+{q:"В чём ключевое отличие Comparable от Comparator?", o:["Comparable определяет естественный порядок внутри самого класса, а Comparator — внешний объект для альтернативной сортировки","Comparable может сравнивать любые типы, а Comparator — только один","Comparable находится в пакете java.util, а Comparator — в java.lang","Comparable работает только с числами, а Comparator — со строками"], a:0},
+{q:"Какое утверждение верно о потокобезопасности стандартных коллекций (ArrayList, HashSet, HashMap)?", o:["Все стандартные коллекции потокобезопасны по умолчанию","Ни одна из стандартных коллекций НЕ является потокобезопасной","Только HashMap является потокобезопасным","ArrayList потокобезопасен, а HashSet — нет"], a:1},
+{q:"Какой из следующих способов создания потокобезопасной коллекции является корректным?", o:["Collections.synchronizedList(new ArrayList<>())","new ArrayList<>().synchronized()","new ThreadSafeList<>()","ArrayList.concurrent()"], a:0},
+
+{q:"Какую основную проблему решают системы сборки (Maven, Gradle)?", o:["Запуск IDE и подключение к серверу","Написание исходного кода на Java","Автоматизация компиляции, управления зависимостями, тестирования и упаковки","Создание графического интерфейса пользователя"], a:2},
+{q:"В стандартной структуре Maven-проекта, где размещаются исходные Java-файлы приложения?", o:["src/test/java","src/main/java","src/main/resources","target/classes"], a:1},
+{q:"Куда Maven помещает скомпилированные файлы и результаты сборки?", o:["src/main/java","src/main/resources","lib/","target/"], a:3},
+{q:"Что такое GAV-координаты в Maven?", o:["groupId, artifactId, version — уникальный идентификатор проекта или зависимости","goal, action, value — параметры запуска плагинов","gradle, ant, version — совместимость систем сборки","git, archive, validate — команды контроля версий"], a:0},
+{q:"Что произойдёт при выполнении команды mvn package?", o:["Выполнится только упаковка в JAR без компиляции и тестирования","Последовательно выполнятся фазы validate, compile, test, package","Выполнится только фаза package и фаза deploy","Будет загружен JAR-файл в Maven Central"], a:1},
+{q:"Какая команда Maven устанавливает артефакт в локальный репозиторий ~/.m2/repository?", o:["mvn deploy","mvn package","mvn compile","mvn install"], a:3},
+{q:"В каком порядке Maven ищет зависимости?", o:["Локальный репозиторий → Maven Central → пользовательские репозитории","Maven Central → локальный репозиторий → пользовательские репозитории","Пользовательские репозитории → Maven Central → локальный репозиторий","Всегда скачивает заново из Maven Central"], a:0},
+{q:"Какая область видимости (scope) зависимости используется в Maven по умолчанию, если scope не указан?", o:["test","provided","compile","runtime"], a:2},
+{q:"Какая команда Maven показывает дерево зависимостей проекта?", o:["mvn dependencies:list","mvn dependency:tree","mvn show:dependencies","mvn tree:dependencies"], a:1}
+];
+
+const TOTAL_TIME = 40 * 60;
+let timeLeft = TOTAL_TIME;
+let timerId = null;
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+
+const introEl = document.getElementById('intro');
+const formEl = document.getElementById('quiz-form');
+const resultsEl = document.getElementById('results');
+const footerBar = document.getElementById('footer-bar');
+const timerEl = document.getElementById('timer');
+const progressText = document.getElementById('progress-text');
+const progressFill = document.getElementById('progress-fill');
+
+function renderQuestions() {
+  QUESTIONS.forEach((item, qi) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.id = 'q-' + qi;
+
+    const num = document.createElement('div');
+    num.className = 'q-num';
+    num.textContent = 'Вопрос ' + (qi + 1) + ' из ' + QUESTIONS.length;
+    block.appendChild(num);
+
+    const text = document.createElement('p');
+    text.className = 'q-text';
+    text.textContent = item.q;
+    block.appendChild(text);
+
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    item.o.forEach((optText, oi) => {
+      const label = document.createElement('label');
+      label.dataset.oi = oi;
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'q' + qi;
+      input.value = oi;
+      input.addEventListener('change', () => {
+        userAnswers[qi] = oi;
+        [...opts.children].forEach(l => l.classList.remove('selected'));
+        label.classList.add('selected');
+        updateProgress();
+      });
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(optText));
+      opts.appendChild(label);
+    });
+    block.appendChild(opts);
+    formEl.appendChild(block);
+  });
+}
+
+function updateProgress() {
+  const answered = userAnswers.filter(a => a !== null).length;
+  progressText.textContent = answered + ' / ' + QUESTIONS.length;
+  progressFill.style.width = (answered / QUESTIONS.length * 100) + '%';
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return m + ':' + s;
+}
+
+function startTimer() {
+  timerId = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = formatTime(Math.max(timeLeft, 0));
+    if (timeLeft <= 300) timerEl.classList.add('warn');
+    if (timeLeft <= 0) {
+      clearInterval(timerId);
+      finishExam();
+    }
+  }, 1000);
+}
+
+function finishExam() {
+  clearInterval(timerId);
+  let correctCount = 0;
+  QUESTIONS.forEach((item, qi) => {
+    const block = document.getElementById('q-' + qi);
+    const labels = block.querySelectorAll('.options label');
+    const chosen = userAnswers[qi];
+    const isCorrect = chosen === item.a;
+    if (isCorrect) correctCount++;
+    block.classList.add(isCorrect ? 'correct' : 'incorrect');
+    labels.forEach((label, oi) => {
+      label.querySelector('input').disabled = true;
+      if (oi === item.a) label.classList.add('correct-answer');
+      if (oi === chosen && !isCorrect) label.classList.add('wrong-selected');
+    });
+  });
+
+  footerBar.classList.add('hidden');
+
+  const percent = Math.round((correctCount / QUESTIONS.length) * 100);
+  let verdict = '';
+  if (percent >= 90) verdict = 'Отлично';
+  else if (percent >= 75) verdict = 'Хорошо';
+  else if (percent >= 60) verdict = 'Удовлетворительно';
+  else verdict = 'Неудовлетворительно';
+
+  resultsEl.innerHTML =
+    '<div class="score-label">Результат</div>' +
+    '<div class="score">' + correctCount + ' / ' + QUESTIONS.length + '</div>' +
+    '<div class="score-label">' + percent + '% — ' + verdict + '</div>' +
+    '<p style="margin-top:22px;color:#555;">Правильные ответы отмечены зелёным, ваши ошибочные варианты — красным. Прокрутите страницу вверх, чтобы просмотреть разбор всех вопросов.</p>' +
+    '<button class="restart-btn" onclick="location.reload()">Пройти заново</button>';
+  resultsEl.classList.remove('hidden');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  introEl.classList.add('hidden');
+  renderQuestions();
+  formEl.classList.remove('hidden');
+  footerBar.classList.remove('hidden');
+  updateProgress();
+  startTimer();
+});
+
+document.getElementById('submit-btn').addEventListener('click', () => {
+  const answered = userAnswers.filter(a => a !== null).length;
+  if (answered < QUESTIONS.length) {
+    const ok = confirm('Отвечено на ' + answered + ' из ' + QUESTIONS.length + ' вопросов. Завершить тест сейчас?');
+    if (!ok) return;
+  }
+  finishExam();
+});
+</script>
+</body>
+</html>
