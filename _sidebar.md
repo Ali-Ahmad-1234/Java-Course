@@ -25,7 +25,7 @@
   - [Тест 5: Коллекции, I/O, многопоточность](quiz5.md)
   - [Тест 6: Сборка, JDBC, Hibernate](quiz6.md)
 
-- [Итоговый тест (exam.html)](exam.html)
+- <a href="https://ali-ahmad-1234.github.io/Java-Course/exam.html" target="_blank">Итоговый тест</a>
 
 - Балльно-Рейтинговая Система
   - [ИД-24](brs-id24.md)
