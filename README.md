@@ -29,7 +29,8 @@
 - [Практика 4: Вложенные классы, обобщения и исключения](practice4.md)
 - [Практика 5: Коллекции, ввод/вывод и многопоточность](practice5.md)
 - [Практика 6: Системы сборки, JDBC и Hibernate](practice6.md)
-- [Практика 7: Spring Framework и Spring Boot](practice7.md)
+- [Практика 7: Индивидуальный проект — CRUD на Spring Boot (Часть 1)](practice7.md)
+- [Практика 8: Аутентификация и роли — Spring Security (Часть 2)](practice8.md)
 
 ### Тесты
 

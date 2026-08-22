@@ -1,158 +1,107 @@
-# Практическое занятие 7: Spring Framework и Spring Boot
+# Практическое занятие 7: Индивидуальный проект — CRUD-приложение на Spring Boot (Часть 1)
 
-## Часть 1. Создание проекта Spring Boot
+## Введение
+
+Начиная с этого занятия вы строите **собственный индивидуальный проект**, который завершите на занятии 8. Каждый студент выбирает свою тематику (по номеру в группе) и оформляет приложение в собственном визуальном стиле. Итоговое приложение — веб-сервис на Spring Boot с интерфейсом на Thymeleaf, позволяющий добавлять, просматривать, редактировать и удалять записи в одной таблице базы данных.
+
+На этом занятии вы делаете базовую версию приложения — без входа в систему и ролей (это добавится на занятии 8).
+
+## Часть 1. Создание проекта
 
 ### Задание 1.1. Spring Initializr
 
-Откройте https://start.spring.io и сгенерируйте проект со следующими параметрами:
+Сгенерируйте на [start.spring.io](https://start.spring.io) проект:
 
-- Project: Maven
-- Language: Java
-- Spring Boot: 3.5.x
-- Group: mpt.course
-- Artifact: campus
-- Name: campus
-- Package name: lecture.seven.campus
-- Packaging: Jar
-- Java: 21 (или новее)
+- Project: Maven, Language: Java, Spring Boot: 3.5.x
+- Group: mpt.it, Artifact: свободное имя по вашей теме (например, `books-app`)
+- Java: 21
 
-Зависимости: Spring Web, Spring Data JPA, Spring Security, Thymeleaf, H2 Database, Spring Boot DevTools.
+Зависимости: **Spring Web**, **Spring Data JPA**, **Thymeleaf**, **H2 Database**, **Spring Boot DevTools**.
 
-Скачайте архив, распакуйте, откройте в IDE и убедитесь, что проект собирается:
+Распакуйте, откройте в IDE, убедитесь, что `./mvnw spring-boot:run` запускает приложение на порту 8080.
 
-```
-./mvnw clean compile      # Linux / macOS
-mvnw.cmd clean compile    # Windows
-```
+## Часть 2. Выбор индивидуальной темы
 
-Запустите приложение:
+### Задание 2.1. Своя тематика
 
-```
-./mvnw spring-boot:run
-```
+Выберите тему по своему номеру в группе (или по указанию преподавателя):
 
-В консоли должен появиться баннер Spring Boot и сообщение о старте Tomcat на порту 8080.
+| № | Тематика | Название таблицы | Столбцы таблицы |
+|---|---|---|---|
+| 1 | Книги | books | id, title, author, year |
+| 2 | Сотрудники | employees | id, full_name, position, salary |
+| 3 | Занятия | lessons | id, subject, teacher, weekday |
+| 4 | Заказы | orders | id, client_name, product, order_date |
+| 5 | Посещения | attendance | id, person_name, event, date |
+| 6 | Контакты | contacts | id, name, phone, email |
+| 7 | Оборудование | equipment | id, item_name, purchase_date, status |
+| 8 | Билеты | tickets | id, event_name, buyer_name, seat_number |
+| 9 | Пациенты | patients | id, name, birth_date, diagnosis |
+| 10 | Проекты | projects | id, project_name, manager, deadline |
+| 11 | Товары | products | id, name, price, stock_quantity |
+| 12 | Автомобили | cars | id, owner_name, model, last_service_date |
+| 13 | Фильмы | movies | id, title, genre, release_year |
+| 14 | Туры | tours | id, destination, price, departure_date |
+| 15 | Финансовые операции | transactions | id, type, amount, date |
+| 16 | Питомцы | pets | id, owner_name, pet_name, species |
+| 17 | Отзывы | reviews | id, user_name, product, rating |
+| 18 | Оценки | grades | id, student_name, subject, grade |
+| 19 | Платежи | payments | id, payer, amount, payment_date |
+| 20 | Публикации | publications | id, title, journal, year |
+| 21 | Заявки на отпуск | vacations | id, employee, start_date, end_date |
+| 22 | Курсы | courses | id, title, teacher, hours |
+| 23 | Домашние задания | assignments | id, title, due_date, status |
+| 24 | Аренда квартир | rentals | id, address, rooms, monthly_price |
+| 25 | Медицинские услуги | medical_services | id, service_name, price, duration |
+| 26 | Меню | menu_items | id, dish_name, category, price |
+| 27 | Мероприятия | events | id, name, location, event_date |
 
-### Задание 1.2. Анализ pom.xml
+Запишите выбранную тему — она понадобится и на занятии 8.
 
-Откройте сгенерированный `pom.xml`. Ответьте письменно:
+## Часть 3. Модель и доступ к данным
 
-1. Что находится в секции `<parent>` и зачем она нужна?
-2. Почему у большинства зависимостей нет версий?
-3. Что делает плагин `spring-boot-maven-plugin`?
-4. Какие транзитивные зависимости подключает `spring-boot-starter-web`? Выполните `mvn dependency:tree` и опишите 3–5 самых важных.
+### Задание 3.1. Entity
 
-## Часть 2. IoC и DI — простой пример
-
-### Задание 2.1. Создание бинов и внедрение зависимостей
-
-Создайте пакет `lecture.seven.campus.greet` и в нём:
-
-```java
-// GreetingService.java
-package lecture.seven.campus.greet;
-
-public interface GreetingService {
-    String greet(String name);
-}
-```
-
-```java
-// EnglishGreetingService.java
-package lecture.seven.campus.greet;
-
-import org.springframework.stereotype.Service;
-
-@Service
-public class EnglishGreetingService implements GreetingService {
-    @Override
-    public String greet(String name) {
-        return "Hello, " + name + "!";
-    }
-}
-```
+Создайте JPA-сущность под вашу таблицу (пример для темы «Книги»):
 
 ```java
-// GreetingController.java
-package lecture.seven.campus.greet;
-
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/greet")
-public class GreetingController {
-
-    private final GreetingService greetingService;
-
-    public GreetingController(GreetingService greetingService) {
-        this.greetingService = greetingService;
-    }
-
-    @GetMapping("/{name}")
-    public String greet(@PathVariable String name) {
-        return greetingService.greet(name);
-    }
-}
-```
-
-Запустите приложение и откройте `http://localhost:8080/api/greet/World`. Должно вернуться `Hello, World!`.
-
-Объясните письменно:
-
-1. Каким образом Spring «знает», что `EnglishGreetingService` нужно подставить в `GreetingController`?
-2. Что произойдёт, если убрать аннотацию `@Service` с класса `EnglishGreetingService`?
-3. Что произойдёт, если создать вторую реализацию `GreetingService` и тоже пометить её `@Service` — без дополнительной настройки?
-
-### Задание 2.2. Три способа внедрения
-
-Создайте три класса, демонстрирующие разные способы DI: `ConstructorInjectionDemo`, `SetterInjectionDemo`, `FieldInjectionDemo` (по образцу лекции).
-
-Ответьте письменно:
-
-1. Какой способ предпочтительнее и почему?
-2. Почему поле в конструкторном варианте может быть `final`, а в остальных — нет?
-3. Какой способ труднее всего тестировать без Spring-контекста?
-
-## Часть 3. REST-контроллер с CRUD
-
-### Задание 3.1. Сущность Course
-
-Создайте пакет `lecture.seven.campus.model` и JPA-сущность:
-
-```java
-package lecture.seven.campus.model;
+package mpt.it.app.model;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "courses")
-public class Course {
+@Table(name = "books")
+public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false, length = 150)
     private String title;
+    private String author;
+    private Integer year;
 
-    @Column(name = "credits", nullable = false)
-    private int credits;
+    public Book() {}
 
-    public Course() {}
-
-    public Course(String title, int credits) {
+    public Book(String title, String author, Integer year) {
         this.title = title;
-        this.credits = credits;
+        this.author = author;
+        this.year = year;
     }
 
+    // геттеры и сеттеры для всех полей
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
-    public int getCredits() { return credits; }
-    public void setCredits(int credits) { this.credits = credits; }
+    public String getAuthor() { return author; }
+    public void setAuthor(String author) { this.author = author; }
+    public Integer getYear() { return year; }
+    public void setYear(Integer year) { this.year = year; }
 }
 ```
+
+Замените поля на столбцы вашей темы из таблицы выше.
 
 В `src/main/resources/application.properties`:
 
@@ -165,164 +114,161 @@ spring.jpa.hibernate.ddl-auto=update
 spring.h2.console.enabled=true
 ```
 
-### Задание 3.2. Репозиторий и сервис
+### Задание 3.2. Repository и Service
 
 ```java
-package lecture.seven.campus.repository;
+package mpt.it.app.repository;
 
-import lecture.seven.campus.model.Course;
+import mpt.it.app.model.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CourseRepository extends JpaRepository<Course, Long> {
+public interface BookRepository extends JpaRepository<Book, Long> {
 }
 ```
 
-Создайте интерфейс `CourseService` и его реализацию `CourseServiceImpl` (по образцу лекции) с методами `findAll()`, `save()`, `findById()`, `deleteById()`, используя конструкторное внедрение `CourseRepository`.
+```java
+package mpt.it.app.service;
 
-### Задание 3.3. REST-контроллер
+import mpt.it.app.model.Book;
+import mpt.it.app.repository.BookRepository;
+import org.springframework.stereotype.Service;
+import java.util.List;
 
-Создайте `CourseRestController` с полным CRUD (`GET`, `GET/{id}`, `POST`, `PUT/{id}`, `DELETE/{id}`), по аналогии с примером из лекции, возвращая соответствующие HTTP-коды через `ResponseEntity`.
+@Service
+public class BookService {
 
-### Задание 3.4. Тестирование REST API
+    private final BookRepository repository;
 
-Выполните через curl или Postman:
+    public BookService(BookRepository repository) {
+        this.repository = repository;
+    }
 
-```bash
-# Создание курса
-curl -X POST http://localhost:8080/api/courses \
-    -H "Content-Type: application/json" \
-    -d '{"title":"Введение в Java","credits":5}'
-
-# Получение всех
-curl http://localhost:8080/api/courses
-
-# Получение по id
-curl http://localhost:8080/api/courses/1
-
-# Обновление
-curl -X PUT http://localhost:8080/api/courses/1 \
-    -H "Content-Type: application/json" \
-    -d '{"title":"Java Advanced","credits":6}'
-
-# Удаление
-curl -X DELETE http://localhost:8080/api/courses/1
+    public List<Book> findAll() { return repository.findAll(); }
+    public Book save(Book book) { return repository.save(book); }
+    public Book findById(Long id) { return repository.findById(id).orElse(null); }
+    public void deleteById(Long id) { repository.deleteById(id); }
+}
 ```
 
-Запишите ответы (включая HTTP-коды) для каждого запроса.
+## Часть 4. Веб-интерфейс на Thymeleaf
 
-## Часть 4. Веб-интерфейс с Thymeleaf
+### Задание 4.1. Контроллер
 
-### Задание 4.1. Web-контроллер
+```java
+package mpt.it.app.controller;
 
-Создайте `CourseWebController` с методами `list` (`GET /courses`), `save` (`POST /courses/save`), `delete` (`GET /courses/delete/{id}`) — по аналогии с лекцией.
+import mpt.it.app.model.Book;
+import mpt.it.app.service.BookService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-### Задание 4.2. Шаблон courses.html
+@Controller
+@RequestMapping("/items")
+public class BookWebController {
 
-Создайте `src/main/resources/templates/courses.html` с формой добавления курса и таблицей списка курсов (по образцу `students.html` из лекции, используя Bootstrap 5 через CDN).
+    private final BookService service;
 
-Перейдите на `http://localhost:8080/courses`, добавьте несколько курсов, удалите один. Объясните: (1) что делает атрибут `th:object`? (2) как Thymeleaf привязывает поля формы через `th:field="*{title}"`? (3) что делает `redirect:` в возвращаемой строке контроллера?
+    public BookWebController(BookService service) { this.service = service; }
 
-## Часть 5. Spring Security
+    @GetMapping
+    public String list(Model model) {
+        model.addAttribute("items", service.findAll());
+        model.addAttribute("item", new Book());
+        return "items";
+    }
 
-### Задание 5.1. Базовая безопасность
+    @PostMapping("/save")
+    public String save(@ModelAttribute Book item) {
+        service.save(item);
+        return "redirect:/items";
+    }
 
-Добавьте `SecurityConfig` с двумя пользователями в памяти (`user`/`password` и `admin`/`password`), ограничив `POST/PUT/DELETE /api/courses/**` только ролью ADMIN (по образцу лекции).
+    @GetMapping("/edit/{id}")
+    public String editForm(@PathVariable Long id, Model model) {
+        model.addAttribute("item", service.findById(id));
+        model.addAttribute("items", service.findAll());
+        return "items";
+    }
 
-Проверьте:
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        service.deleteById(id);
+        return "redirect:/items";
+    }
+}
+```
 
-1. Войдите как `user`. Можно ли добавить курс через `POST /api/courses`? Какой код ответа?
-2. Войдите как `admin`. Получится ли теперь?
-3. Что происходит при `GET /api/courses` без аутентификации?
+### Задание 4.2. Шаблон items.html
 
-### Задание 5.2. Защита методов через @PreAuthorize
+Создайте `src/main/resources/templates/items.html` с формой добавления/редактирования и таблицей всех записей (по образцу из лекции 7, часть 8 — `th:each`, `th:field`, `th:object`). Адаптируйте поля формы и колонки таблицы под вашу тему.
 
-Добавьте `@EnableMethodSecurity` и аннотации `@PreAuthorize` на методы контроллера.
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Моё приложение</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
 
-Объясните: (1) в чём различие между `requestMatchers(...).hasRole(...)` и `@PreAuthorize` на методе? (2) что произойдёт при двух конфликтующих правилах?
+<h2>Список записей</h2>
 
-## Часть 6. Дополнительные задания
+<form th:action="@{/items/save}" th:object="${item}" method="post">
+    <input type="hidden" th:field="*{id}"/>
+    <!-- поля формы под вашу тему -->
+    <button type="submit">Сохранить</button>
+</form>
 
-### Задание 6.1. Кастомные методы в JpaRepository
+<table>
+    <thead><tr><!-- заголовки колонок под вашу тему --></tr></thead>
+    <tbody>
+    <tr th:each="i : ${items}">
+        <!-- ячейки под вашу тему -->
+        <td>
+            <a th:href="@{/items/edit/{id}(id=${i.id})}">Редактировать</a>
+            <a th:href="@{/items/delete/{id}(id=${i.id})}"
+               onclick="return confirm('Удалить?')">Удалить</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
-Расширьте `CourseRepository` методами `findByTitleContainingIgnoreCase(String part)` и `countByCredits(int credits)`. Добавьте эндпоинт `/api/courses/search?q=...`, использующий новый метод.
+</body>
+</html>
+```
 
-### Задание 6.2. Аспект логирования
+### Задание 4.3. Индивидуальное CSS-оформление
 
-Подключите `spring-boot-starter-aop` и создайте `LoggingAspect`, логирующий вызовы методов пакета `service` (по образцу лекции). Выполните любой запрос и убедитесь, что в логе появились записи.
+**Обязательное условие:** создайте собственный файл `src/main/resources/static/css/style.css` и оформите страницу в уникальном визуальном стиле, соответствующем вашей теме (например, тёплые тона для темы «Книги», технические цвета для темы «Оборудование» и т.д.). Не используйте Bootstrap или другой готовый фреймворк — оформление должно быть вашим собственным.
 
-### Задание 6.3. AppInitializer
+## Часть 5. Проверка работы
 
-Создайте компонент, автоматически создающий 4 тестовых курса при старте приложения через `@PostConstruct`, если таблица пуста. Что произойдёт, если убрать `@PostConstruct`? А если убрать `@Component`?
+### Задание 5.1. Демонстрация CRUD
 
-### Задание 6.4. Тест контроллера
+Запустите приложение, откройте `http://localhost:8080/items` и продемонстрируйте:
 
-Добавьте `@WebMvcTest`-тест для `CourseRestController` с использованием `@MockitoBean` и `@WithMockUser` (по образцу лекции). Запустите `./mvnw test`. Объясните: (1) что делает `@WebMvcTest`? (2) зачем нужен `@MockitoBean`? (3) что делает `@WithMockUser`?
+1. добавление новой записи через форму;
+2. отображение всех записей в таблице;
+3. редактирование существующей записи;
+4. удаление записи.
 
-## Часть 7. Production-ready практики
+Сделайте скриншот итоговой страницы для отчёта.
 
-### Задание 7.1. Валидация входных данных
+## Контрольные вопросы
 
-Подключите `spring-boot-starter-validation`. Создайте `CourseRequest` (record) с валидацией `@NotBlank`, `@Size` для `title` и `@Min` для `credits`. Замените `@RequestBody Course` на `@Valid @RequestBody CourseRequest` в `POST`/`PUT`.
-
-Проверьте невалидный запрос через curl — должен вернуться HTTP 400.
-
-Ответьте письменно: (1) что произойдёт без `@Valid`? (2) чем `@NotNull` отличается от `@NotBlank` для String? (3) когда именно запускается валидация?
-
-### Задание 7.2. DTO и Mapper
-
-Создайте `CourseResponse` (record) и `CourseMapper` (`@Component`) с методами `toEntity`/`toResponse`. Перепишите контроллер, чтобы он работал только с DTO.
-
-Ответьте письменно: (1) зачем разделять Entity и DTO? (2) что произойдёт при возврате entity с ленивой связью вне транзакции? (3) какие преимущества даёт `record` для DTO?
-
-### Задание 7.3. Глобальная обработка ошибок
-
-Создайте `GlobalExceptionHandler` (`@RestControllerAdvice`) с обработчиками `MethodArgumentNotValidException`, `EntityNotFoundException` и общим `Exception` (по образцу лекции), возвращающими единый `ErrorResponse`.
-
-Измените `findById`, чтобы бросать `EntityNotFoundException` при отсутствии записи. Проверьте `GET /api/courses/999` — должен прийти 404 с понятным сообщением.
-
-Ответьте письменно: (1) чем `@RestControllerAdvice` отличается от `@ControllerAdvice`? (2) в каком порядке Spring выбирает обработчик среди нескольких `@ExceptionHandler`? (3) почему общий обработчик `Exception.class` логически должен быть «последней линией защиты»?
-
-### Задание 7.4. Транзакции и подводные камни
-
-Добавьте `@Transactional` в методы сервиса (`readOnly = true` для чтения, обычный для записи). Создайте демонстрационный метод, сохраняющий два объекта подряд, где второй вызывает исключение — убедитесь, что первый тоже откатывается благодаря транзакции.
-
-Создайте класс, демонстрирующий self-invocation (вызов `@Transactional`-метода через `this` внутри того же класса) — убедитесь, что транзакция не создаётся.
-
-Ответьте письменно: (1) где правильно ставить `@Transactional`? (2) что значит `readOnly = true`? (3) какие три типичные ловушки `@Transactional`-прокси? (4) при каких исключениях транзакция откатывается по умолчанию?
-
-## Часть 8. Контрольные вопросы
-
-1. Сформулируйте принцип IoC своими словами.
-2. Назовите три способа DI в Spring. Какой предпочтителен и почему?
-3. Чем отличаются `@Component`, `@Service`, `@Repository`, `@Controller`?
-4. Чем `@RestController` отличается от `@Controller`?
-5. Что делает `@SpringBootApplication`?
-6. Что такое starter-модуль? Приведите 3 примера.
-7. Что такое `ApplicationContext` и чем отличается от `BeanFactory`?
-8. Какие scope бинов вы знаете?
-9. Объясните понятия AOP: Aspect, JoinPoint, Pointcut, Advice.
-10. Чем `@PathVariable` отличается от `@RequestParam`?
-11. Объясните цепочку Controller → Service → Repository.
-12. Что такое `JpaRepository` и как Spring Data генерирует реализацию по имени метода?
-13. Как Thymeleaf получает данные от контроллера?
-14. Что такое `SecurityFilterChain`?
-15. Зачем нужен `PasswordEncoder`?
-16. Опишите алгоритм JWT-аутентификации.
-17. В чём преимущество JWT перед session-based аутентификацией для REST API?
-18. Зачем нужна аннотация `@Valid`?
-19. Перечислите проблемы возврата `@Entity` напрямую из контроллера.
-20. Чем `@RestControllerAdvice` отличается от `@ControllerAdvice`?
-21. Почему `@Transactional` ставят на сервисном слое, а не на контроллере?
-22. Что такое self-invocation и почему это проблема для `@Transactional`?
-23. Откатится ли транзакция при checked-исключении по умолчанию?
+1. Что делает `spring.jpa.hibernate.ddl-auto=update`?
+2. Зачем нужен `JpaRepository`, если вы не написали ни одного SQL-запроса?
+3. Что делает `th:object` в форме Thymeleaf?
+4. Чем отличается `th:field="*{id}"` от обычного `name="id"` в HTML-форме?
+5. Что означает `redirect:/items` в возвращаемой строке контроллера?
+6. Почему `@GetMapping("/delete/{id}")` — не самый правильный REST-подход для удаления (в идеале это должен быть `DELETE`-запрос)? Почему здесь он всё же используется?
 
 ## Что сдать по итогам занятия
 
-- Spring Boot проект с REST-контроллером (CRUD для Course)
-- Веб-интерфейс на Thymeleaf для управления курсами
-- Spring Security с двумя пользователями и разграничением доступа
-- Минимум один тест для REST-контроллера через MockMvc
-- Production-ready доработки: DTO с валидацией, маппер, `GlobalExceptionHandler`, `@Transactional` на сервисном слое
-- Ответы на контрольные вопросы
+- Работающее Spring Boot приложение с CRUD для выбранной темы;
+- собственный CSS-файл с уникальным оформлением;
+- ответы на контрольные вопросы.
 
-**Критерии оценивания:** приложение запускается без ошибок; CRUD-эндпоинты работают корректно; невалидный запрос возвращает 400 со списком ошибок; несуществующий id возвращает 404; JSON-ответы не содержат лишних полей entity; веб-страница работает; доступ ограничен по ролям; все компоненты подключены через DI; транзакции откатываются корректно; тесты проходят.
+Этот проект продолжится на занятии 8 — не удаляйте и не пересоздавайте его.
