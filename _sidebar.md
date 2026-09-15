@@ -37,3 +37,4 @@
 - Презентации
   - [Ядро Linux](presentations-linux-kernel.md)
   - [Паттерны проектирования](presentations-design-patterns.md)
+  - [Модуль 3: Spring](presentations-spring.md)
