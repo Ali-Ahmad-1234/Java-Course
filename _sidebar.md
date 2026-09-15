@@ -32,7 +32,9 @@
 - <a href="https://ali-ahmad-1234.github.io/Java-Course/exam.html" target="_blank">Итоговый тест</a>
 
 - Балльно-Рейтинговая Система
-  - [ИД-24](brs-id24.md)
+  - [Б Р С](brs.md)
+
+
 
 - Презентации
   - [Ядро Linux](presentations-linux-kernel.md)
