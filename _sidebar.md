@@ -40,3 +40,4 @@
   - [Ядро Linux](presentations-linux-kernel.md)
   - [Паттерны проектирования](presentations-design-patterns.md)
   - [Модуль 3: Spring](presentations-spring.md)
+  - [Модуль 4: Развёртывание Java-приложений](presentations-java-deployment.md)

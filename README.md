@@ -59,6 +59,7 @@
 - [Темы презентаций: Ядро Linux](presentations-linux-kernel.md)
 - [Темы презентаций: Паттерны проектирования](presentations-design-patterns.md)
 - [Темы презентаций для 3-го модуля: Spring](presentations-spring.md)
+- [Модуль 4: Развёртывание Java-приложений](presentations-java-deployment.md)
 
 ## Примеры кода
 
